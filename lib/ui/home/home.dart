@@ -1,6 +1,9 @@
+import 'package:boardapp/ui/home/widget/constum_card.dart';
+import 'package:boardapp/ui/home/widget/textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 
 class BoardHome extends StatefulWidget {
   const BoardHome({super.key});
@@ -32,7 +35,7 @@ class _BoardHomeState extends State<BoardHome> {
         onPressed: () {
           _showDialog(context);
         },
-        child: Icon(
+        child: const Icon(
           FontAwesomeIcons.pen,
           color: Colors.black,
         ),
@@ -41,24 +44,12 @@ class _BoardHomeState extends State<BoardHome> {
         stream: firestoreDb,
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const CircularProgressIndicator();
-          return ListView.separated(
-            separatorBuilder: (context, index) {
-              return Divider(
-                thickness: 3,
-              );
-            },
+          return ListView.builder(
             itemCount: snapshot.data!.docs.length,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(snapshot.data!.docs[index]["title"]),
-                    Text(snapshot.data!.docs[index]["description"]),
-                  ],
-                ),
+            itemBuilder: (context, int index) {
+              return CostumCard(
+                snapshot: snapshot,
+                index: index,
               );
             },
           );
@@ -78,7 +69,10 @@ class _BoardHomeState extends State<BoardHome> {
           contentPadding: const EdgeInsets.all(10),
           content: Column(
             children: [
-              const Text("please fill the form"),
+              const Text(
+                "Please Fill the Form",
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+              ),
               Textfield(controller: nameInputController, strig: "Your Name*"),
               Textfield(controller: titleInputController, strig: "Title*"),
               Textfield(
@@ -124,6 +118,10 @@ class _BoardHomeState extends State<BoardHome> {
                     titleInputController.clear();
                     descriptionInputController.clear();
                   }).catchError((error) => print(error));
+                  const snackBar = SnackBar(
+                      duration: Duration(milliseconds: 400),
+                      content: Text("Item Added.........."));
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
                 }
               },
               child: const Text(
@@ -136,26 +134,5 @@ class _BoardHomeState extends State<BoardHome> {
         );
       },
     );
-  }
-}
-
-class Textfield extends StatelessWidget {
-  const Textfield({Key? key, required this.controller, required this.strig})
-      : super(key: key);
-
-  final TextEditingController controller;
-  final String strig;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-        child: TextField(
-      autocorrect: true,
-      autofocus: true,
-      decoration: InputDecoration(
-        labelText: strig,
-      ),
-      controller: controller,
-    ));
   }
 }
