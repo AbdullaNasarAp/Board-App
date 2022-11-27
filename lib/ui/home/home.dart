@@ -1,9 +1,13 @@
+import 'package:boardapp/controller/provider/auth_provider.dart';
 import 'package:boardapp/ui/home/widget/constum_card.dart';
 import 'package:boardapp/ui/home/widget/textfield.dart';
+import 'package:boardapp/ui/login/login.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:intl/intl.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class BoardHome extends StatefulWidget {
   const BoardHome({super.key});
@@ -28,34 +32,82 @@ class _BoardHomeState extends State<BoardHome> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.white,
-        elevation: 20,
-        onPressed: () {
-          _showDialog(context);
-        },
-        child: const Icon(
-          FontAwesomeIcons.pen,
-          color: Colors.black,
-        ),
-      ),
-      body: StreamBuilder(
-        stream: firestoreDb,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return const CircularProgressIndicator();
-          return ListView.builder(
-            itemCount: snapshot.data!.docs.length,
-            itemBuilder: (context, int index) {
-              return CostumCard(
-                snapshot: snapshot,
-                index: index,
-              );
-            },
+    return StreamBuilder<User?>(
+        stream: context.watch<AuthProvider>().user(),
+        builder: (context, user) {
+          if (!user.hasData) {
+            return LoginScreen();
+          }
+          return Scaffold(
+            appBar: AppBar(
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.elliptical(
+                    30,
+                    100,
+                  ),
+                  bottomRight: Radius.elliptical(
+                    30,
+                    100,
+                  ),
+                ),
+              ),
+              title: Text(
+                "Community Board",
+                style: GoogleFonts.montserrat(
+                    color: Colors.black, fontWeight: FontWeight.bold),
+              ),
+              centerTitle: true,
+              backgroundColor: Colors.yellow,
+              elevation: 20,
+            ),
+            backgroundColor: Colors.yellow,
+            floatingActionButton: Padding(
+              padding: const EdgeInsets.only(bottom: 70.0),
+              child: FloatingActionButton(
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.elliptical(100, 200))),
+                backgroundColor: Colors.yellow,
+                elevation: 20,
+                onPressed: () {
+                  _showDialog(context);
+                },
+                child: const Icon(
+                  FontAwesomeIcons.pen,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            body: StreamBuilder(
+              stream: firestoreDb,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                return Padding(
+                  padding: const EdgeInsets.all(14.0),
+                  child: ListView.separated(
+                    separatorBuilder: (context, index) {
+                      return const SizedBox(
+                        height: 40,
+                      );
+                    },
+                    itemCount: snapshot.data!.docs.length,
+                    itemBuilder: (context, int index) {
+                      return CostumCard(
+                        snapshot: snapshot,
+                        index: index,
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
           );
-        },
-      ),
-    );
+        });
   }
 
   _showDialog(BuildContext context) async {

@@ -28,7 +28,12 @@ class CostumCard extends StatelessWidget {
         height: 200,
         color: Colors.yellow,
         child: Card(
-          elevation: 9,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+                bottomRight: Radius.elliptical(100, 20),
+                topLeft: Radius.elliptical(100, 20)),
+          ),
+          elevation: 30,
           child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
