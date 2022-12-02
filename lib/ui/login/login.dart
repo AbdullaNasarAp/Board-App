@@ -1,10 +1,10 @@
 import 'dart:developer';
-
 import 'package:boardapp/controller/const/constant.dart';
 import 'package:boardapp/controller/provider/auth_provider.dart';
 import 'package:boardapp/ui/login/widgets/finalcontainer.dart';
 import 'package:boardapp/ui/login/widgets/formwidge.dart';
 import 'package:boardapp/ui/login/widgets/text1.dart';
+import 'package:boardapp/ui/register/register.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -64,7 +64,11 @@ class LoginScreen extends StatelessWidget {
                     children: [
                       InkWell(
                         onTap: () {
-                          log("regi");
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const RegisterScreen(),
+                              ));
                         },
                         child: const Text1(
                             title: 'Register',
@@ -124,7 +128,7 @@ class LoginScreen extends StatelessWidget {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          log("hello");
+                          googleSignin(authprovider, context);
                         },
                         child: Container1(
                           text1: "Sign in with Google",
@@ -138,7 +142,7 @@ class LoginScreen extends StatelessWidget {
                       ),
                       GestureDetector(
                         onTap: () {
-                          log("hai");
+                          appleSignin(authprovider, context);
                         },
                         child: Container1(
                           text1: "Sign in with Apple",
@@ -170,6 +174,42 @@ class LoginScreen extends StatelessWidget {
   void signIn(AuthProvider provider, context) async {
     final message =
         await provider.signIn(emailController.text, passWordController.text);
+    if (message == '') {
+      return;
+    } else {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            message,
+            style: const TextStyle(color: kRed),
+          ),
+          backgroundColor: kBlack,
+        ),
+      );
+    }
+  }
+
+  void googleSignin(AuthProvider provider, context) async {
+    final message = await provider.googleSignin();
+    if (message == '') {
+      return;
+    } else {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            message,
+            style: const TextStyle(color: kRed),
+          ),
+          backgroundColor: kBlack,
+        ),
+      );
+    }
+  }
+
+  void appleSignin(AuthProvider provider, context) async {
+    final message = await provider.appleSignin();
     if (message == '') {
       return;
     } else {

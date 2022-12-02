@@ -1,8 +1,12 @@
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:boardapp/controller/provider/auth_provider.dart';
 import 'package:boardapp/ui/home/widget/constum_card.dart';
 import 'package:boardapp/ui/home/widget/textfield.dart';
 import 'package:boardapp/ui/login/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -18,6 +22,8 @@ class BoardHome extends StatefulWidget {
 
 class _BoardHomeState extends State<BoardHome> {
   var firestoreDb = FirebaseFirestore.instance.collection("board").snapshots();
+  final firebase_storage.FirebaseStorage firestorage =
+      firebase_storage.FirebaseStorage.instance;
   TextEditingController nameInputController = TextEditingController();
   TextEditingController titleInputController = TextEditingController();
   TextEditingController descriptionInputController = TextEditingController();
@@ -125,6 +131,18 @@ class _BoardHomeState extends State<BoardHome> {
                 "Please Fill the Form",
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
               ),
+              const SizedBox(
+                height: 20,
+              ),
+              CircleAvatar(
+                radius: 40,
+                child: Image.asset(""),
+              ),
+              ElevatedButton(
+                  onPressed: () {
+                    uploadImage(context);
+                  },
+                  child: const Text("Upload Image")),
               Textfield(controller: nameInputController, strig: "Your Name*"),
               Textfield(controller: titleInputController, strig: "Title*"),
               Textfield(
@@ -186,5 +204,35 @@ class _BoardHomeState extends State<BoardHome> {
         );
       },
     );
+  }
+
+  void uploadImage(BuildContext ctx) async {
+    final results = await FilePicker.platform.pickFiles(
+      allowMultiple: false,
+      type: FileType.custom,
+      allowedExtensions: ['png', 'jpg'],
+    );
+    if (results == null) {
+      ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(
+          content: Text(
+        "No File Selected",
+      )));
+      return null;
+    }
+    final path = results.files.single.path;
+    final name = results.files.single.name;
+    uploadFile(path.toString(), name).then((value) => print("Done"));
+  }
+
+  Future<void> uploadFile(
+    String filePath,
+    String fileName,
+  ) async {
+    File file = File(filePath);
+    try {
+      await firestorage.ref('test/$fileName').putFile(file);
+    } on FirebaseException catch (e) {
+      print(e);
+    }
   }
 }

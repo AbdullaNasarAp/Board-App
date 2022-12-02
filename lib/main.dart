@@ -1,6 +1,5 @@
 import 'package:boardapp/controller/provider/auth_provider.dart';
 import 'package:boardapp/ui/home/home.dart';
-import 'package:boardapp/ui/login/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +32,7 @@ class MyApp extends StatelessWidget {
                 bodyText1: GoogleFonts.montserrat(),
                 bodyText2: GoogleFonts.montserrat())),
         debugShowCheckedModeBanner: false,
-        home: BoardHome(),
+        home: const BoardHome(),
       ),
     );
   }
