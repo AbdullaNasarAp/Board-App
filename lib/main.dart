@@ -1,10 +1,14 @@
 import 'package:boardapp/controller/provider/auth_provider.dart';
-import 'package:boardapp/ui/home/home.dart';
+import 'package:boardapp/controller/provider/todo_list_provider.dart';
+import 'package:boardapp/controller/provider/user_detials_provider.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+
+import 'view/home/home_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,17 +26,20 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) => AuthProvider(FirebaseAuth.instance),
         ),
+        ChangeNotifierProvider(
+          create: (context) => UserProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => TodoProvider(),
+        ),
         StreamProvider(
-            create: (context) => context.watch<AuthProvider>().user(),
+            create: (context) => context.watch<AuthProvider>().stream(),
             initialData: null),
       ],
       child: MaterialApp(
-        theme: ThemeData(
-            textTheme: TextTheme(
-                bodyText1: GoogleFonts.montserrat(),
-                bodyText2: GoogleFonts.montserrat())),
         debugShowCheckedModeBanner: false,
-        home: const BoardHome(),
+        theme: ThemeData.dark(),
+        home: const HomeScreen(),
       ),
     );
   }
